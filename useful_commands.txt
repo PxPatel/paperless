@@ -1,0 +1,2 @@
+For generating types from Supabase:
+Doc: https://supabase.com/docs/guides/api/rest/generating-types
