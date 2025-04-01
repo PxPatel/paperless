@@ -102,3 +102,12 @@ Please file feedback and issues over on the [Supabase GitHub org](https://github
 - [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
 - [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
 - [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+
+
+## Work to be done 
+
+ - Fix Database - having issues - too simplistic in design. 
+ - Better understand how to describe a role (based on role of a student/teacher) - need to integrate a database where those roles are set up. 
+ 
+ - PDF viewer (teacher edition/student)
+ 
