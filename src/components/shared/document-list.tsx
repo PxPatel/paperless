@@ -1,19 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { Document } from "@/types/organization";
 import {
   FileText,
   FileIcon as FilePdf,
   FileIcon as FileWord,
   Clock,
 } from "lucide-react";
-import { Document } from "./organization-dashboard";
 
 interface DocumentListProps {
   documents: Document[];
+  showCompletionStats?: boolean;
+  onEditDocument?: (document: Document) => void;
+  onDeleteDocument?: (documentId: string) => void;
 }
 
-export function DocumentList({ documents }: DocumentListProps) {
+export function DocumentList({
+  documents,
+  showCompletionStats = false,
+  onEditDocument,
+  onDeleteDocument,
+}: DocumentListProps) {
   const router = useRouter();
 
   // Controller logic
@@ -81,16 +89,34 @@ export function DocumentList({ documents }: DocumentListProps) {
             >
               Category
             </th>
+            {showCompletionStats && (
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                Completion
+              </th>
+            )}
+            {(onEditDocument || onDeleteDocument) && (
+              <th
+                scope="col"
+                className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
           {documents.map((document) => (
             <tr
               key={document.id}
-              onClick={() => handleDocumentClick(document.id)}
               className="cursor-pointer transition-colors hover:bg-gray-50"
             >
-              <td className="whitespace-nowrap px-6 py-4">
+              <td
+                className="whitespace-nowrap px-6 py-4"
+                onClick={() => handleDocumentClick(document.id)}
+              >
                 <div className="flex items-center">
                   {getDocumentIcon(document.type)}
                   <div className="ml-4">
@@ -100,7 +126,10 @@ export function DocumentList({ documents }: DocumentListProps) {
                   </div>
                 </div>
               </td>
-              <td className="whitespace-nowrap px-6 py-4">
+              <td
+                className="whitespace-nowrap px-6 py-4"
+                onClick={() => handleDocumentClick(document.id)}
+              >
                 <div className="text-sm text-gray-500">
                   {formatDate(document.dateCreated)}
                 </div>
@@ -111,7 +140,10 @@ export function DocumentList({ documents }: DocumentListProps) {
                   </div>
                 )}
               </td>
-              <td className="whitespace-nowrap px-6 py-4">
+              <td
+                className="whitespace-nowrap px-6 py-4"
+                onClick={() => handleDocumentClick(document.id)}
+              >
                 <span
                   className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                     document.status === "pending"
@@ -124,11 +156,64 @@ export function DocumentList({ documents }: DocumentListProps) {
                     : "Completed"}
                 </span>
               </td>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+              <td
+                className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                onClick={() => handleDocumentClick(document.id)}
+              >
                 {document.category
                   .replace("_", " ")
                   .replace(/\b\w/g, (l) => l.toUpperCase())}
               </td>
+              {showCompletionStats &&
+                document.completedBy !== undefined &&
+                document.totalStudents !== undefined && (
+                  <td
+                    className="whitespace-nowrap px-6 py-4"
+                    onClick={() => handleDocumentClick(document.id)}
+                  >
+                    <div className="flex items-center">
+                      <div className="mr-2 h-2 w-24 overflow-hidden rounded-full bg-gray-200">
+                        <div
+                          className="h-full bg-cyan-500"
+                          style={{
+                            width: `${(document.completedBy / document.totalStudents) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {document.completedBy}/{document.totalStudents}
+                      </span>
+                    </div>
+                  </td>
+                )}
+              {(onEditDocument || onDeleteDocument) && (
+                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                  <div className="flex justify-end space-x-2">
+                    {onEditDocument && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditDocument(document);
+                        }}
+                        className="text-cyan-600 hover:text-cyan-900"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {onDeleteDocument && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteDocument(document.id);
+                        }}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
