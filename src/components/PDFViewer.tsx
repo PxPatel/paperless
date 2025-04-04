@@ -5,7 +5,6 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { PDFDocument, rgb } from 'pdf-lib';  // Import pdf-lib
-import { Canvg } from 'canvg';  // Import canvg
 
 interface PDFViewerProps {
   fileUrl: string;
@@ -111,25 +110,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl }) => {
     }
   };
 
-  const convertCanvasToSVG = async () => {
+  const getCanvasImage = () => {
     if (!canvasRef.current) return "";
-  
-    // Get the CanvasRenderingContext2D context
-    const context = canvasRef.current.getContext('2d');
-    if (!context) return "";
-  
-    // Use Canvg to render the canvas as SVG (async)
-    const canvgInstance = await Canvg.from(context, canvasRef.current.toDataURL());
-    
-    // Start rendering
-    await canvgInstance.start();
-    
-    // Get the SVG string using the toSvg() method
-    const svgString = canvgInstance.toSvg();
-    
-    return svgString;
+    return canvasRef.current.toDataURL("image/png");
   };
-  
+
   const handleSubmit = async () => {
     // Load the original PDF
     const existingPdfBytes = await fetch(fileUrl).then(res => res.arrayBuffer());
@@ -147,21 +132,20 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl }) => {
       });
     });
 
-    // Convert the canvas drawing into SVG
-    const svgString = convertCanvasToSVG();
+    // Convert canvas drawing to image and embed it into the PDF
+    const canvasImage = getCanvasImage();
+    const canvasImageBytes = await fetch(canvasImage).then(res => res.arrayBuffer());
 
-    // Embed SVG into the PDF
-    if (svgString) {
-      const svgImage = await pdfDoc.embedSvg(svgString);
-      const { width, height } = page.getSize();
-      
-      page.drawImage(svgImage, {
-        x: 100, // Adjust position as needed
-        y: height - 200, // Adjust position as needed
-        width: 400, // Adjust size as needed
-        height: 400, // Adjust size as needed
-      });
-    }
+    const image = await pdfDoc.embedPng(canvasImageBytes);
+    const { width, height } = page.getSize();
+
+    // Draw the image (canvas drawing) over the page
+    page.drawImage(image, {
+      x: 100, // Adjust position as needed
+      y: height, // Adjust position as needed
+      width: 400, // Adjust size as needed
+      height: 400, // Adjust size as needed
+    });
 
     // Save the updated PDF
     const pdfBytes = await pdfDoc.save();
@@ -287,8 +271,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl }) => {
             {/* Input Field for New Text Annotation */}
             {isAddingAnnotation && annotationPosition && (
               <div style={{ position: "absolute", left: annotationPosition.x, top: annotationPosition.y, background: "yellow", padding: "5px", borderRadius: "5px" }}>
-                <input type="text" value={newAnnotationText} onChange={handleInputChange} placeholder="Enter annotation text..." />
-                <button onClick={addAnnotation}>Save</button>
+                <input type="text" value={newAnnotationText} onChange={handleInputChange} placeholder="Enter annotation text" />
+                <button onClick={addAnnotation}>Add</button>
               </div>
             )}
           </div>
