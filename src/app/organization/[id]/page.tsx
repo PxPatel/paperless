@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
-import { OrganizationDashboard } from "../../../components/organization/organization-dashboard";
-import type { Document } from "../../../components/organization/organization-dashboard";
+import { TeacherOrganizationView } from "../../../components/teacher/teacher-organization-view";
+import { StudentOrganizationView } from "../../../components/student/student-organization-view";
+import { Document } from "../../../types/organization";
 
 // This acts as the Controller in MVC - fetching data and passing to the view
 export default function OrganizationPage({
@@ -24,6 +25,8 @@ export default function OrganizationPage({
       status: "completed",
       type: "pdf",
       category: "course_material",
+      completedBy: 28,
+      totalStudents: 30,
     },
     {
       id: "doc2",
@@ -33,6 +36,8 @@ export default function OrganizationPage({
       dueDate: "2025-04-10",
       type: "docx",
       category: "assignment",
+      completedBy: 15,
+      totalStudents: 30,
     },
     {
       id: "doc3",
@@ -42,6 +47,8 @@ export default function OrganizationPage({
       dueDate: "2025-04-05",
       type: "pdf",
       category: "exam",
+      completedBy: 22,
+      totalStudents: 30,
     },
     {
       id: "doc4",
@@ -51,6 +58,8 @@ export default function OrganizationPage({
       dueDate: "2025-04-15",
       type: "pdf",
       category: "project",
+      completedBy: 8,
+      totalStudents: 30,
     },
     {
       id: "doc5",
@@ -59,6 +68,8 @@ export default function OrganizationPage({
       status: "completed",
       type: "pdf",
       category: "course_material",
+      completedBy: 30,
+      totalStudents: 30,
     },
     {
       id: "doc6",
@@ -67,6 +78,8 @@ export default function OrganizationPage({
       status: "completed",
       type: "pdf",
       category: "course_material",
+      completedBy: 25,
+      totalStudents: 30,
     },
     {
       id: "doc7",
@@ -75,6 +88,8 @@ export default function OrganizationPage({
       status: "completed",
       type: "pdf",
       category: "announcement",
+      completedBy: 30,
+      totalStudents: 30,
     },
   ];
 
@@ -83,10 +98,24 @@ export default function OrganizationPage({
     redirect("/dashboard");
   }
 
-  return (
-    <OrganizationDashboard
-      organization={organizationData}
-      documents={documents}
-    />
-  );
+  // Check user role from environment variable
+  // In a real app, this would come from authentication/session
+  const userRole = process.env.ROLE || "STUDENT";
+
+  // Render the appropriate view based on user role
+  if (userRole === "TEACHER") {
+    return (
+      <TeacherOrganizationView
+        organization={organizationData}
+        documents={documents}
+      />
+    );
+  } else {
+    return (
+      <StudentOrganizationView
+        organization={organizationData}
+        documents={documents}
+      />
+    );
+  }
 }

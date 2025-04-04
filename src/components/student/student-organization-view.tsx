@@ -1,36 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { DocumentList } from "./document-list";
-import { OrganizationSidebar } from "./organization-sidebar";
+import { DocumentList } from "../shared/document-list";
+import type { Document, Organization } from "@/types/organization";
+import { StudentSidebar } from "./student-sidebar";
 
-// Types (Model in MVC)
-export interface Organization {
-  id: string;
-  name: string;
-  adminName: string;
-}
-
-export interface Document {
-  id: string;
-  title: string;
-  dateCreated: string;
-  status: "pending" | "completed";
-  dueDate?: string;
-  type: string;
-  category: string;
-}
-
-interface OrganizationDashboardProps {
+interface StudentOrganizationViewProps {
   organization: Organization;
   documents: Document[];
 }
 
 // View component
-export function OrganizationDashboard({
+export function StudentOrganizationView({
   organization,
   documents,
-}: OrganizationDashboardProps) {
+}: StudentOrganizationViewProps) {
   const [activeSection, setActiveSection] = useState<"pending" | "all">(
     "pending"
   );
@@ -44,7 +28,7 @@ export function OrganizationDashboard({
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
-      <OrganizationSidebar
+      <StudentSidebar
         organization={organization}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
